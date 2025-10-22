@@ -1,6 +1,14 @@
-# Knit MCP Demo
+# Knit Pattern MCP
 
-一个使用 FastAPI 提供简单控制面与 Python MCP SDK 提供示例工具/资源的最小演示。
+一个用于设计棒针编织图案的 MCP 服务器，基于 Python MCP SDK 的快速实现（STDIO 运行）。
+
+## 功能概览
+
+- 工具 `translate_abbrev`：翻译棒针英文缩写为中文含义
+- 工具 `generate_chart`：生成常见针法的 ASCII 图表（`garter`, `stockinette`, `rib1x1`, `rib2x2`, `seed`, `lace_mesh`）
+- 工具 `gauge_calc`：根据密度（每 10cm 针目/行数）计算目标尺寸的起针与行数
+- 工具 `export_markdown`：将图表和图例导出为 Markdown 文本
+- 资源 `pattern://{name}`：内置示例图案（`scarf_seed`, `mesh_sw`, 其他默认为 `garter`）
 
 ## 安装依赖
 
@@ -8,8 +16,8 @@
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate    # macOS/Linux
-pip install -e .             # 或者: pip install -r <生成的锁文件>
+source .venv/bin/activate
+pip install -e .
 ```
 
 或使用 uv：
@@ -18,45 +26,7 @@ pip install -e .             # 或者: pip install -r <生成的锁文件>
 uv pip install -e .
 ```
 
-## 运行 FastAPI 服务
-
-```bash
-uvicorn main:app --reload
-```
-
-- 健康检查：`GET /health`
-- 注册工具：`POST /register`
-- 列出工具：`GET /tools`
-
-示例注册请求：
-
-```json
-{
-  "name": "DemoServer",
-  "version": "0.1.0",
-  "tools": [
-    {
-      "name": "echo",
-      "description": "Echo a message",
-      "input_schema": {"type": "object", "properties": {"message": {"type": "string"}}}
-    },
-    {
-      "name": "add",
-      "description": "Add two numbers",
-      "input_schema": {
-        "type": "object",
-        "properties": {"a": {"type": "number"}, "b": {"type": "number"}}
-      }
-    }
-  ]
-}
-```
-
-## 运行与测试 MCP 服务器（示例）
-
-本仓库提供 `server.py`，定义了两个工具与一个资源，基于 `mcp` 官方 Python SDK。
-
-- 直接以 stdio 运行（便于 MCP Inspector 或客户端调试）：
+## 运行 MCP 服务器（STDIO）
 
 ```bash
 python server.py
@@ -64,20 +34,38 @@ python server.py
 uv run python server.py
 ```
 
-- 配合 MCP Inspector（需安装 npm 包 `@modelcontextprotocol/inspector`）：
+### 配合 MCP Inspector（可选）
 
 ```bash
 npx @modelcontextprotocol/inspector
-# 按提示选择 STDIO，命令行可设置为: uv run python server.py
+# 选择 STDIO 并设置命令为: uv run python server.py
 ```
 
-## 运行测试
+## 工具输入与返回示例
 
-```bash
-pytest
-```
+- `translate_abbrev`
+  - 输入：`"K, P, YO, k2tog"` 或 `["K", "YO"]`
+  - 返回：缩写到中文含义的映射
 
-测试覆盖：
-- `GET /health` 返回 200 与 `{status: "ok"}`
-- `POST /register` 正常保存工具并返回注册数量
-- `GET /tools` 返回已注册的工具列表
+- `generate_chart`
+  - 输入：`pattern="seed", width=30, height=20`
+  - 返回：包含 `chart`（二维数组），`legend`，`pattern` 等信息
+
+- `gauge_calc`
+  - 输入：`sts_per_10cm=22, rows_per_10cm=30, target_width_cm=20, target_height_cm=150`
+  - 返回：`cast_on`, `row_count` 等
+
+- `export_markdown`
+  - 输入：`chart_result=generate_chart(...)`, `title="..."`
+  - 返回：Markdown 文本，可直接保存或展示
+
+- 资源 `pattern://{name}`
+  - `pattern://scarf_seed`：返回 30x20 的桂花针围巾图案 Markdown
+  - `pattern://mesh_sw`：返回 24x16 的网眼样片 Markdown
+  - 其他名称：返回 20x20 的起伏针示例 Markdown
+
+## 备注
+
+- ASCII 图表以“自下而上”显示行，导出时已反转以贴合编织阅读习惯。
+- `lace_mesh` 为简化网眼示例，包含 `YO` 与 `K2tog` 的重复，适合样片与练习。
+- 如需扩展复杂花样（麻花、扭花等），可在 `server.py` 中新增对应的行/列变换逻辑。
