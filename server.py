@@ -202,6 +202,42 @@ def export_markdown(chart_result: ChartResult, title: str = "Knitting Pattern") 
     md += ["", "## 图表（自下而上显示行）", "```", _format_chart_md(chart[::-1]), "```"]  # type: ignore
     return "\n".join(md)
 
+@mcp.tool("basic-knowledge")
+def basic_knowledge_resource() -> str:
+    """内置示例资源：返回 knitting 基础知识的 Markdown 文本。"""
+    return """# Knitting Basic Knowledge
+| 符号     | 英文全称及含义                                         |
+| ------ | ----------------------------------------------- |
+| alt    | alternate，每隔一段                                  |
+| beg    | begin，开始                                        |
+| BO     | bind off，收针                                     |
+| CC     | contrasting color，对比色                           |
+| CO     | cast on，起针                                      |
+| cont   | continue，继续                                     |
+| dec    | decrease，减针                                     |
+| inc    | increase，加针                                     |
+| K      | knit，下针                                         |
+| k1-b   | knit one stitch in back loop，扭下针                |
+| k1f\&b | knit 1 front and back，在同一针织下针与扭针（一种加针方式）        |
+| k2tog  | knit two stitches together，左下二并针                |
+| M1     | make 1 stitch，加一针（从下方挑针的方式，可分从右侧或左侧）            |
+| MC     | main color，主色                                   |
+| p      | purl，上针                                         |
+| patt   | pattern，花样                                      |
+| p2sso  | pass 2 slipped stitches over together，将两滑针套过左侧针 |
+| p2tog  | purl two stitches together，左上二并针                |
+| p3tog  | purl three stitches together，左上三并针              |
+| pm     | place marker，放记号圈                               |
+| psso   | pass slipped stitch over，将滑针套过左侧针               |
+| pu     | pick up and knit，挑针继续织                          |
+| rep    | repeat，重复                                       |
+| RS     | right side，正面                                   |
+| s2kp   | sl 2-k1-p2sso，先滑2针，再织1针，最后将滑过去的2针一起套过           |
+| SSK    | Slip,Slip,Purl，滑滑并减针                            |
+| SKP    | Slip1,knit1,pass slipped stitch over，右上2针并1针    |
+| SSP    | Slip,Slip,Purl，上针的右上2针并1针                       |
+"""
+
 
 @mcp.resource("pattern://{name}")
 def pattern_resource(name: str) -> str:
