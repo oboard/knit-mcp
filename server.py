@@ -1,4 +1,4 @@
-from typing import List, Dict, Union
+from typing import List, Dict, Union, TypedDict
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("Knit Pattern MCP")
@@ -42,6 +42,13 @@ LEGEND: Dict[str, str] = {
     "YO": "绕线加针",
     "K2tog": "左下二并针",
 }
+
+class ChartResult(TypedDict):
+    pattern: str
+    width: int
+    height: int
+    chart: List[List[str]]
+    legend: Dict[str, str]
 
 
 def _empty_grid(width: int, height: int, fill: str = "K") -> List[List[str]]:
@@ -120,7 +127,7 @@ def translate_abbrev(items: Union[str, List[str]]) -> Dict[str, str]:
 
 
 @mcp.tool()
-def generate_chart(pattern: str, width: int, height: int) -> Dict[str, Union[str, List[List[str]], Dict[str, str]]]:
+def generate_chart(pattern: str, width: int, height: int) -> ChartResult:
     """生成常见针法的 ASCII 图表。
     支持的 pattern: garter, stockinette, rib1x1, rib2x2, seed, lace_mesh
     返回: {pattern, width, height, chart, legend}
@@ -175,13 +182,13 @@ def _format_chart_md(chart: List[List[str]]) -> str:
 
 
 @mcp.tool()
-def export_markdown(chart_result: Dict[str, Union[str, List[List[str]], Dict[str, str]]], title: str = "Knitting Pattern") -> str:
+def export_markdown(chart_result: ChartResult, title: str = "Knitting Pattern") -> str:
     """将生成的图表导出为 Markdown 文本（含图例）。"""
-    chart = chart_result.get("chart")  # type: ignore
-    legend = chart_result.get("legend", {})  # type: ignore
-    pattern = chart_result.get("pattern", "unknown")  # type: ignore
-    width = chart_result.get("width", 0)  # type: ignore
-    height = chart_result.get("height", 0)  # type: ignore
+    chart = chart_result["chart"]
+    legend = chart_result["legend"]
+    pattern = chart_result["pattern"]
+    width = chart_result["width"]
+    height = chart_result["height"]
     md = [
         f"# {title}",
         "",
